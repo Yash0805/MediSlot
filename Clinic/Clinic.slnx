@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Clinic.Core/Clinic.Core.csproj" />
+  <Project Path="Clinic.Persistence/Clinic.Persistence.csproj" />
+  <Project Path="Clinic.Services/Clinic.Services.csproj" />
+  <Project Path="Clinic.Web/Clinic.Web.csproj" />
+</Solution>
