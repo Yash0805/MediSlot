@@ -12,11 +12,23 @@ export function useAppointmentQuery() {
   });
 }
 
-export function useReportQuery() {
-  return useQuery({
-    queryKey: QUERY_KEY,
+export function useReportQuery(
+  date?: string,
+  fromDate?: string,
+  toDate?: string
+) {
+  return useQuery<Master.ReportResponse>({
+    queryKey: ["REPORT", date, fromDate, toDate],
     queryFn: async () => {
-      return await ApiService.get<Master.Appointment[]>("Appointments/Report");
+      let url = "Appointments/Report";
+
+      if (date) {
+        url += `?date=${date}`;
+      } else if (fromDate && toDate) {
+        url += `?fromdate=${fromDate}&todate=${toDate}`;
+      }
+
+      return await ApiService.get<Master.ReportResponse>(url);
     },
   });
 }

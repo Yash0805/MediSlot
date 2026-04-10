@@ -19,4 +19,10 @@ declare namespace Master {
   interface TimeSlot extends TimeSlotsForm {
     Id: number;
   }
+  interface ReportResponse {
+  totalAppointments: number;
+  appearedCount: number;
+  noShowCount: number;
+  appointments: Master.Appointment[];
+}
 }
