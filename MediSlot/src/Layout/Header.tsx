@@ -10,9 +10,17 @@ const Header: React.FC = () => {
         text-transparent bg-clip-text">
         MediSlot
       </h1>
-      <Link to="Appointments/report" className="block px-4 py-2 text-white font-bold hover:bg-sky-600 hover:text-white rounded transition duration-200">
+      <div className="flex justify-center">
+        <Link to="Appointments/list" className="block px-4 text-white font-bold hover:bg-sky-600 hover:text-white rounded transition duration-200">
+          List
+        </Link>
+        <Link to="Appointments/calendar" className="block px-4 text-white font-bold hover:bg-sky-600 hover:text-white rounded transition duration-200">
+          Calendar
+        </Link>
+        <Link to="Appointments/report" className="block px-4  text-white font-bold hover:bg-sky-600 hover:text-white rounded transition duration-200">
           Report
         </Link>
+      </div>
       <div className="flex items-center gap-4">
         <span className=" text-lg font-semibold 
         bg-white

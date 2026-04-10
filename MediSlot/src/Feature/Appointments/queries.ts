@@ -15,13 +15,12 @@ export function useAppointmentQuery() {
 export function useReportQuery(
   date?: string,
   fromDate?: string,
-  toDate?: string
+  toDate?: string,
 ) {
   return useQuery<Master.ReportResponse>({
     queryKey: ["REPORT", date, fromDate, toDate],
     queryFn: async () => {
       let url = "Appointments/Report";
-
       if (date) {
         url += `?date=${date}`;
       } else if (fromDate && toDate) {

@@ -20,9 +20,9 @@ declare namespace Master {
     Id: number;
   }
   interface ReportResponse {
-  totalAppointments: number;
-  appearedCount: number;
-  noShowCount: number;
-  appointments: Master.Appointment[];
-}
+    totalAppointments: number;
+    appearedCount: number;
+    noShowCount: number;
+    appointments: Master.Appointment[];
+  }
 }

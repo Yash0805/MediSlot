@@ -5,7 +5,10 @@ import type { Nullable } from "primereact/ts-helpers";
 import { Loader } from "../../../Shared/Component/Loader/Loader";
 import Button from "../../../Shared/Component/Button/Button";
 import { useReportQuery } from "../queries";
-import { Grid } from "../../../Shared/Component/Report/Index";
+import Grid from "../../../Shared/Component/Report/Index";
+
+
+
 
 export default function Report() {
     const navigate = useNavigate();
@@ -95,8 +98,7 @@ export default function Report() {
                     {
                         field: "appointmentDate",
                         header: "Date",
-                        render: (value: unknown) =>
-                            new Date(value as string).toLocaleDateString(),
+                        
                     },
                     {
                         field: "timeSlot",
