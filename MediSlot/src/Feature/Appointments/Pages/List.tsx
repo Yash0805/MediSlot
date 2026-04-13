@@ -10,7 +10,6 @@ export default function List() {
     const navigate = useNavigate();
     const { data, isLoading } = useAppointmentQuery();
     const { mutate } = useAppointmentsMutation();
-
     const [selected, setSelected] = useState<number[]>([]);
     const [loadingId, setLoadingId] = useState<number | null>(null);
 
@@ -88,11 +87,9 @@ export default function List() {
                                     disabled={row.status === "Appeared" || !selected.includes(row.id)}
                                     onClick={() => {
                                         setLoadingId(row.id);
-
                                         mutate(row.id, {
                                             onSuccess: () => {
                                                 setLoadingId(null);
-
                                             },
                                             onError: () => {
                                                 setLoadingId(null);
