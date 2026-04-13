@@ -22,27 +22,27 @@ export default function Grid<T>({
 }: GridProps<T>) {
   const [filters, setFilters] = useState<Record<string, string>>({});
 
-const filteredData = data.filter((row) => {
-  return columns.every((col) => {
-    if (!col.filter) return true;
+  const filteredData = data.filter((row) => {
+    return columns.every((col) => {
+      if (!col.filter) return true;
 
-    const rawValue = row[col.field];
+      const rawValue = row[col.field];
 
-    let value = "";
+      let value = "";
 
-    if (col.field === "appointmentDate" && rawValue) {
-      const d = new Date(String(rawValue));
-      value = d.toLocaleDateString("en-IN"); 
-    } else {
-      value = String(rawValue ?? "");
-    }
+      if (col.field === "appointmentDate" && rawValue) {
+        const d = new Date(String(rawValue));
+        value = d.toLocaleDateString("en-IN");
+      } else {
+        value = String(rawValue ?? "");
+      }
 
-    value = value.toLowerCase();
-    const filterValue = (filters[col.field as string] || "").toLowerCase();
+      value = value.toLowerCase();
+      const filterValue = (filters[col.field as string] || "").toLowerCase();
 
-    return value.includes(filterValue);
+      return value.includes(filterValue);
+    });
   });
-});
 
   if (loading) {
     return <p className="text-center py-5">Loading...</p>;

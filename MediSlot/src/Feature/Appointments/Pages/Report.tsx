@@ -7,15 +7,25 @@ import Button from "../../../Shared/Component/Button/Button";
 import { useReportQuery } from "../queries";
 import Grid from "../../../Shared/Component/Report/Index";
 
-
-
-
 export default function Report() {
     const navigate = useNavigate();
+
     const [dates, setDates] = useState<Nullable<(Date | null)[]>>(null);
+
+    function formatDate(date: Date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+    }
+
     const singleDate = dates && dates[0] && !dates[1] ? formatDate(dates[0]) : undefined;
+
     const fromDate = dates && dates[0] && dates[1] ? formatDate(dates[0]) : undefined;
+
     const toDate = dates && dates[0] && dates[1] ? formatDate(dates[1]) : undefined;
+
     const { data, isLoading } = useReportQuery(
         singleDate,
         fromDate,
@@ -35,7 +45,6 @@ export default function Report() {
 
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-4xl font-bold">Appointment Report</h1>
-
                 <Button
                     caption="Back to List"
                     type="button"
@@ -50,7 +59,9 @@ export default function Report() {
                     selectionMode="range"
                     readOnlyInput
                     hideOnRangeSelection
-                    placeholder="Select date "
+                    placeholder="Select Date"
+                    dateFormat="yy-mm-dd"
+                    showIcon
                     className="bg-sky-800 border border-sky-600 rounded px-2 py-2"
                 />
 
@@ -95,36 +106,55 @@ export default function Report() {
                     { field: "phone", header: "Phone", filter: true },
                     { field: "age", header: "Age" },
                     { field: "description", header: "Description" },
+
                     {
                         field: "appointmentDate",
                         header: "Date",
-                        
+                        filter: true,
+                        render: (value: unknown) => {
+                            if (typeof value !== "string") return "-";
+
+                            const d = new Date(value);
+                            if (isNaN(d.getTime())) return "-";
+
+                            return `${d.getFullYear()}-${String(
+                                d.getMonth() + 1
+                            ).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+                        },
                     },
+
                     {
                         field: "timeSlot",
                         header: "Time",
                         render: (value: unknown) =>
-                            new Date(`1970-01-01T${value as string}`).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                            }),
+                            typeof value === "string"
+                                ? new Date(`1970-01-01T${value}`).toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                })
+                                : "-",
                     },
+
                     {
                         field: "status",
                         header: "Status",
-                        render: (value: unknown) => (
-                            <span
-                                className={
-                                    value === "Appeared"
-                                        ? "text-green-400 font-semibold"
-                                        : value === "NoShow"
-                                            ? "text-red-400 font-semibold"
-                                            : "text-yellow-400 font-semibold"
-                                }
-                            >
-                                {value as string}
-                            </span>
-                        ),
+                        render: (value: unknown) => {
+                            if (typeof value !== "string") return "-";
+
+                            return (
+                                <span
+                                    className={
+                                        value === "Appeared"
+                                            ? "text-green-400 font-semibold"
+                                            : value === "NoShow"
+                                                ? "text-red-400 font-semibold"
+                                                : "text-yellow-400 font-semibold"
+                                    }
+                                >
+                                    {value}
+                                </span>
+                            );
+                        },
                     },
                 ]}
                 loading={isLoading}
@@ -132,7 +162,4 @@ export default function Report() {
             />
         </div>
     );
-}
-function formatDate(date: Date) {
-    return date.toISOString().split("T")[0];
 }
