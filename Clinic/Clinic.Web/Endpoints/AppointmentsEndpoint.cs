@@ -13,7 +13,7 @@ public static class AppointmentsEndpoint
         endpoint.MapGet("Appointments", GetAppointmentsList);
         endpoint.MapGet("Appointments/Report", GetReport);
         endpoint.MapPost("Appointments", CreateAppointmentRequest);
-        endpoint.MapPatch("Appointments", MarkNoShowAppointments);
+        endpoint.MapPatch("Appointments/mark-noshow", MarkNoShowAppointments);
         endpoint.MapPatch("Appointments/{id}", PatchAppointmentRequest);
         return endpoint;
     }
