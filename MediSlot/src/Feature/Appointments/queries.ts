@@ -80,7 +80,7 @@ export function useMarkNoShowAppointments() {
 
   return useMutation({
     mutationFn: async () =>
-      await ApiService.patch<Master.Appointment[]>("Appointments/", {}),
+      await ApiService.patch<Master.Appointment[]>("Appointments/mark-noshow", {}),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY }); 

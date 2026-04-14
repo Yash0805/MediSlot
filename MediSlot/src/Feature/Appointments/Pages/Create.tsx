@@ -54,8 +54,6 @@ export default function Create() {
     );
   };
 
-
-
   useEffect(() => {
     const fetchTimeSlots = async () => {
       if (!selectedDate) return;
@@ -72,7 +70,6 @@ export default function Create() {
         setLoadingSlots(false);
       }
     };
-
     fetchTimeSlots();
   }, [selectedDate]);
 
