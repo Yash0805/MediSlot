@@ -1,17 +1,20 @@
+import { useEffect, useState } from "react";
+import { useAppointmentQuery, useMarkNoShowAppointments, useAppointmentsMutation } from "../Feature/Appointments/queries";
 import { useNavigate } from "react-router-dom";
-import { Loader } from "../../../Shared/Component/Loader/Loader";
-import { useAppointmentQuery, useAppointmentsMutation } from "../queries";
-import Button from "../../../Shared/Component/Button/Button";
-import { useState } from "react";
-import { Checkbox } from "primereact/checkbox";
-import { Grid } from "../../../Shared/Component/Grid/Index";
+import { Loader } from "../Shared/Component/Loader/Loader";
+import Button from "../Shared/Component/Button/Button";
+import { Grid } from "../Shared/Component/Grid/Index";
+import { Checkbox, type CheckboxChangeEvent } from "primereact/checkbox";
 
-export default function List() {
+export default function Main() {
     const navigate = useNavigate();
     const { data, isLoading } = useAppointmentQuery();
-    const { mutate } = useAppointmentsMutation();
+    const { mutate: markNoShow } = useMarkNoShowAppointments();
+    const { mutate: markAppeared } = useAppointmentsMutation();
     const [selected, setSelected] = useState<number[]>([]);
     const [loadingId, setLoadingId] = useState<number | null>(null);
+
+    useEffect(() => { markNoShow(); }, [markNoShow]);
 
     if (isLoading) {
         return (
@@ -25,23 +28,23 @@ export default function List() {
         <div className="mt-10 px-6 text-white">
             <div className="flex justify-between items-center mb-10">
                 <h1 className="text-4xl font-bold">
-                    Appointment List
+                    Today Appointment List
                 </h1>
-
                 <Button
                     caption="+ Add Appointment"
                     type="button"
                     onClick={() => navigate("/Appointments/create")}
                 />
             </div>
-
             {!data || data.length === 0 ? (
                 <div className="text-center py-10">
                     No Appointment Found
                 </div>
             ) : (
-                <Grid
-                    data={data as (Master.Appointment & Record<string, unknown>)[]}
+                <Grid<Master.Appointment & Record<string, unknown>>
+                    data={data}
+                    filterMode="today"
+                    showDateFilter={false}
                     columns={[
                         { field: "name", header: "Name" },
                         { field: "phone", header: "Phone" },
@@ -66,13 +69,12 @@ export default function List() {
                                 </span>
                             ),
                         },
-
                         {
                             header: "Select",
-                            render: (_, row) => (
+                            render: (_: unknown, row: Master.Appointment) => (
                                 <Checkbox
-                                    onChange={(e) => {
-                                        if (row.status === "Appeared") return;
+                                    onChange={(e: CheckboxChangeEvent) => {
+                                        if (row.status !== "NoShow") return;
                                         if (e.checked) {
                                             setSelected(prev =>
                                                 prev.includes(row.id)
@@ -85,27 +87,32 @@ export default function List() {
                                             );
                                         }
                                     }}
-                                    checked={
-                                        row.status === "Appeared" || selected.includes(row.id)
-                                    }
-                                    disabled={row.status === "Appeared"}
+                                    checked={selected.includes(row.id)}
+                                    disabled={row.status !== "NoShow"}
                                 />
                             ),
                         },
 
                         {
                             header: "Action",
-                            render: (_, row) => (
+                            render: (_: unknown, row: Master.Appointment) => (
                                 <Button
                                     caption="Apply"
                                     type="button"
                                     loading={loadingId === row.id}
-                                    disabled={row.status === "Appeared" || !selected.includes(row.id)}
+                                    disabled={
+                                        row.status !== "NoShow" ||
+                                        !selected.includes(row.id)
+                                    }
                                     onClick={() => {
                                         setLoadingId(row.id);
-                                        mutate(row.id, {
+
+                                        markAppeared(row.id, {
                                             onSuccess: () => {
                                                 setLoadingId(null);
+                                                setSelected(prev =>
+                                                    prev.filter(id => id !== row.id)
+                                                );
                                             },
                                             onError: () => {
                                                 setLoadingId(null);

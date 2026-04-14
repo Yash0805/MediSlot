@@ -1,4 +1,4 @@
-﻿using Clinic.Core.Dtos;
+using Clinic.Core.Dtos;
 using Clinic.Core.Request;
 using Clinic.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -68,6 +68,7 @@ public sealed class AppointmentsService
         int total = data.Count;
         int appearedCount = data.Count(a => a.Status == "Appeared");
         int noShowCount = data.Count(a => a.Status == "NoShow");
+        int BookedCount = data.Count(a => a.Status == "Booked");
 
         List<AppointmentsDto> appointments = data
             .Select(a => new AppointmentsDto(
@@ -83,7 +84,7 @@ public sealed class AppointmentsService
             ))
             .ToList();
 
-        return new ReportDto(total, appearedCount, noShowCount, appointments);
+        return new ReportDto(total, appearedCount, noShowCount, BookedCount, appointments);
     }
 
     public AppointmentsDto CreateAppointmentRequest(CreateAppointmentRequest request)
@@ -129,6 +130,48 @@ public sealed class AppointmentsService
             timeSlot.TimeSlot,
             appointment.Status
         );
+    }
+
+    public List<AppointmentsDto>? MarkNoShowAppointments()
+    {
+        try
+        {
+            DateOnly today = DateOnly.FromDateTime(DateTime.Today);
+
+            List<Appointments> appointments = _dbContext.Appointments
+                .Include(t => t.TimeSlot)
+                .Where(a => a.AppointmentDate == today)
+                .ToList();
+
+            if (!appointments.Any())
+            {
+                return null;
+            }
+
+            foreach (Appointments appointment in appointments)
+            {
+                appointment.Status = "NoShow";
+            }
+
+            _dbContext.SaveChanges();
+
+            return appointments.Select(appointment => new AppointmentsDto(
+                appointment.Id,
+                appointment.Name,
+                appointment.Phone,
+                appointment.Age,
+                appointment.Description,
+                appointment.AppointmentDate,
+                appointment.TimeSlotId,
+                appointment.TimeSlot.TimeSlot,
+                appointment.Status
+            )).ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating appointment");
+            return null;
+        }
     }
 
     public AppointmentsDto? PatchAppointmentRequest(int Id)

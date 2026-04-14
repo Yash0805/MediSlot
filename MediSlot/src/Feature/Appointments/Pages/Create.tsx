@@ -47,12 +47,14 @@ export default function Create() {
       {
         onSuccess: () => {
           reset();
-          navigate("/Appointments/list");
+          navigate("/");
         },
-        
+
       }
     );
   };
+
+
 
   useEffect(() => {
     const fetchTimeSlots = async () => {
@@ -106,7 +108,7 @@ export default function Create() {
       <div className="flex justify-between items-center mb-10">
         <h1 className="text-4xl font-bold">Book Appointment</h1>
         <button
-          onClick={() => navigate("/Appointments/list")}
+          onClick={() => navigate("/")}
           className="text-white hover:underline text-sm"
         >
           ← Back to List

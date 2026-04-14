@@ -8,6 +8,7 @@ declare namespace Master {
     timeSlotId?: number;
     timeSlot?: string;
     status: string;
+    [key: string]: unknown;
   }
   interface Appointment extends AppointmentForm {
     id: number;
@@ -23,6 +24,7 @@ declare namespace Master {
     totalAppointments: number;
     appearedCount: number;
     noShowCount: number;
+    bookedCount: number;
     appointments: Master.Appointment[];
   }
 }

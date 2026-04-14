@@ -13,6 +13,7 @@ public static class AppointmentsEndpoint
         endpoint.MapGet("Appointments", GetAppointmentsList);
         endpoint.MapGet("Appointments/Report", GetReport);
         endpoint.MapPost("Appointments", CreateAppointmentRequest);
+        endpoint.MapPatch("Appointments", MarkNoShowAppointments);
         endpoint.MapPatch("Appointments/{id}", PatchAppointmentRequest);
         return endpoint;
     }
@@ -43,6 +44,15 @@ public static class AppointmentsEndpoint
         {
             return TypedResults.Conflict(new { message = ex.Message, code = 409 });
         }
+    }
+
+    private static IResult MarkNoShowAppointments(AppointmentsService appointmentsService)
+    {
+        List<AppointmentsDto>? appointments = appointmentsService.MarkNoShowAppointments();
+        return appointments != null
+            ? TypedResults.Ok(appointments)
+            : TypedResults.BadRequest(
+                "Failed to mark no-show appointments. Please check the provided data and try again.");
     }
 
     private static IResult PatchAppointmentRequest(AppointmentsService appointmentsService, int id)

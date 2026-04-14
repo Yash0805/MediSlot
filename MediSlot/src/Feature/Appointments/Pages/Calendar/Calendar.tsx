@@ -20,7 +20,7 @@ const Calendar: FC = () => {
       id: String(a.id),
       title: a.name,
       date: formatDate(a.appointmentDate),
-      color: a.status === 'Appeared' ? '#22c55e' : '#ef4444',
+      color: a.status === 'Appeared' ? '#22c55e' : a.status === 'NoShow' ? '#ef4444' : '#2563EB' ,
     }));
   }, [data]);
 

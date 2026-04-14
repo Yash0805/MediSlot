@@ -22,6 +22,8 @@ interface GridProps<T> {
   pageSize?: number;
   rowKey?: (row: T) => string | number;
   loading?: boolean;
+  filterMode?: "all" | "today" | "future";
+  showDateFilter?: boolean;
 }
 
 export function Grid<T extends Record<string, unknown>>({
@@ -30,6 +32,8 @@ export function Grid<T extends Record<string, unknown>>({
   pageSize = 5,
   rowKey,
   loading = false,
+  filterMode,
+  showDateFilter = true,
 }: GridProps<T>) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [columnFilters, setColumnFilters] = useState<Record<string, string>>({});
@@ -39,22 +43,28 @@ export function Grid<T extends Record<string, unknown>>({
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
 
   const today = useMemo(() => {
-    const date = new Date();
-    date.setHours(0, 0, 0, 0);
-    return date;
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
   }, []);
 
   const filteredData = useMemo(() => {
     return data.filter((item) => {
       const itemDateValue = item["appointmentDate" as keyof T];
-      if (!itemDateValue) return false;
+      if (!itemDateValue) return true;
 
       const itemDate = new Date(itemDateValue as string);
       itemDate.setHours(0, 0, 0, 0);
 
-      if (itemDate < today) return false;
+      if (filterMode === "today") {
+        if (itemDate.getTime() !== today.getTime()) return false;
+      }
 
-      if (selectedDate) {
+      if (filterMode === "future") {
+        if (itemDate < today) return false;
+      }
+
+      if (showDateFilter && selectedDate) {
         const selected = new Date(selectedDate);
         selected.setHours(0, 0, 0, 0);
         if (itemDate.getTime() !== selected.getTime()) return false;
@@ -70,18 +80,22 @@ export function Grid<T extends Record<string, unknown>>({
 
       return columnMatch;
     });
-  }, [data, selectedDate, columnFilters, columns, today]);
+  }, [data, selectedDate, columnFilters, columns, today, filterMode, showDateFilter]);
 
   const sortedData = useMemo(() => {
     if (!sortField) return filteredData;
+
     return [...filteredData].sort((a, b) => {
       const v1 = a[sortField];
       const v2 = b[sortField];
+
       if (typeof v1 === "string" && typeof v2 === "string") {
         return asc ? v1.localeCompare(v2) : v2.localeCompare(v1);
       }
+
       if (v1! < v2!) return asc ? -1 : 1;
       if (v1! > v2!) return asc ? 1 : -1;
+
       return 0;
     });
   }, [filteredData, sortField, asc]);
@@ -95,28 +109,31 @@ export function Grid<T extends Record<string, unknown>>({
 
   return (
     <div className="relative">
-      <div className="mb-4 flex items-center gap-2 text-white">
-        <Calendar
-          value={selectedDate}
-          onChange={(e) => {
-            setSelectedDate(e.value as Date);
-            setPage(1);
-          }}
-          placeholder="Filter by date"
-          className="bg-sky-800 border border-sky-600  rounded"
-          dateFormat="yy-mm-dd"
-          showIcon
-          minDate={today}
-        />
-        <button
-          className="px-3 py-2 border border-sky-500 rounded"
-          onClick={() => setSelectedDate(null)}
-        >
-          Clear
-        </button>
-      </div>
+      {showDateFilter && (
+        <div className="mb-4 flex items-center gap-2 text-white">
+          <Calendar
+            value={selectedDate}
+            onChange={(e) => {
+              setSelectedDate(e.value as Date);
+              setPage(1);
+            }}
+            placeholder="Filter by date"
+            className="bg-sky-800 border border-sky-600 rounded"
+            dateFormat="yy-mm-dd"
+            showIcon
+            minDate={filterMode === "future" ? today : undefined}
+          />
 
-      <table className="w-full text-left text-white-300">
+          <button
+            className="px-3 py-2 border border-sky-500 rounded"
+            onClick={() => setSelectedDate(null)}
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
+      <table className="w-full text-left text-white">
         <thead className="bg-sky-900/70 text-sm uppercase">
           <tr>
             {columns.map((c, i) => (
@@ -157,7 +174,7 @@ export function Grid<T extends Record<string, unknown>>({
         <tbody>
           {paginatedData.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} className="text-center py-6 text-white">
+              <td colSpan={columns.length} className="text-center py-6">
                 No Appointment Found.
               </td>
             </tr>
@@ -176,19 +193,25 @@ export function Grid<T extends Record<string, unknown>>({
                       </td>
                     );
                   }
+
                   if (c.field) {
-                    return <td key={i} className="px-6 py-4">{String(item[c.field])}</td>;
+                    return (
+                      <td key={i} className="px-6 py-4">
+                        {String(item[c.field])}
+                      </td>
+                    );
                   }
+
                   if (c.actions) {
                     return (
                       <td key={i} className="px-6 py-4 flex gap-2">
                         {c.actions.map((action, idx) => (
                           <button
                             key={idx}
-                            title={action.icon}
                             onClick={() => action.onClick(item)}
                             className={
-                              action.className ?? "px-2 py-1 border border-sky-500 rounded hover:bg-sky-700"
+                              action.className ??
+                              "px-2 py-1 border border-sky-500 rounded hover:bg-sky-700"
                             }
                           >
                             <i className={action.icon}></i>
@@ -197,6 +220,7 @@ export function Grid<T extends Record<string, unknown>>({
                       </td>
                     );
                   }
+
                   return <td key={i}></td>;
                 })}
               </tr>

@@ -9,28 +9,18 @@ import Grid from "../../../Shared/Component/Report/Index";
 
 export default function Report() {
     const navigate = useNavigate();
-
     const [dates, setDates] = useState<Nullable<(Date | null)[]>>(null);
-
     function formatDate(date: Date) {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const day = String(date.getDate()).padStart(2, "0");
-
         return `${year}-${month}-${day}`;
     }
 
     const singleDate = dates && dates[0] && !dates[1] ? formatDate(dates[0]) : undefined;
-
     const fromDate = dates && dates[0] && dates[1] ? formatDate(dates[0]) : undefined;
-
     const toDate = dates && dates[0] && dates[1] ? formatDate(dates[1]) : undefined;
-
-    const { data, isLoading } = useReportQuery(
-        singleDate,
-        fromDate,
-        toDate
-    );
+    const { data, isLoading } = useReportQuery(singleDate, fromDate, toDate);
 
     if (isLoading) {
         return (
@@ -42,13 +32,12 @@ export default function Report() {
 
     return (
         <div className="mt-10 px-6 text-white">
-
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-4xl font-bold">Appointment Report</h1>
                 <Button
                     caption="Back to List"
                     type="button"
-                    onClick={() => navigate("/Appointments")}
+                    onClick={() => navigate("/")}
                 />
             </div>
 
@@ -73,27 +62,35 @@ export default function Report() {
                 </button>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="bg-sky-800 p-4 rounded-2xl">
-                    <h3 className="text-sm text-sky-300">Total</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-sky-600 text-white p-4 rounded-2xl shadow-sm">
+                    <h3 className="text-sm opacity-80">Total</h3>
                     <p className="text-2xl font-bold">
                         {data?.totalAppointments ?? 0}
                     </p>
                 </div>
 
-                <div className="bg-green-800 p-4 rounded-2xl">
-                    <h3 className="text-sm text-green-300">Appeared</h3>
+                <div className="bg-green-600 text-white p-4 rounded-2xl shadow-sm">
+                    <h3 className="text-sm opacity-80">Appeared</h3>
                     <p className="text-2xl font-bold">
                         {data?.appearedCount ?? 0}
                     </p>
                 </div>
 
-                <div className="bg-red-800 p-4 rounded-2xl">
-                    <h3 className="text-sm text-red-300">No Show</h3>
+                <div className="bg-red-600 text-white p-4 rounded-2xl shadow-sm">
+                    <h3 className="text-sm opacity-80">No Show</h3>
                     <p className="text-2xl font-bold">
                         {data?.noShowCount ?? 0}
                     </p>
                 </div>
+
+                <div className="bg-blue-600 text-white p-4 rounded-2xl shadow-sm">
+                    <h3 className="text-sm opacity-80">Booked</h3>
+                    <p className="text-2xl font-bold">
+                        {data?.bookedCount ?? 0}
+                    </p>
+                </div>
+
             </div>
 
             <Grid
@@ -140,7 +137,6 @@ export default function Report() {
                         header: "Status",
                         render: (value: unknown) => {
                             if (typeof value !== "string") return "-";
-
                             return (
                                 <span
                                     className={
@@ -148,7 +144,7 @@ export default function Report() {
                                             ? "text-green-400 font-semibold"
                                             : value === "NoShow"
                                                 ? "text-red-400 font-semibold"
-                                                : "text-yellow-400 font-semibold"
+                                                : "text-blue-400 font-semibold"
                                     }
                                 >
                                     {value}

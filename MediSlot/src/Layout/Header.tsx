@@ -11,6 +11,9 @@ const Header: React.FC = () => {
         MediSlot
       </h1>
       <div className="flex justify-center">
+        <Link to="" className="block px-4 text-white font-bold hover:bg-sky-600 hover:text-white rounded transition duration-200">
+          Home
+        </Link>
         <Link to="Appointments/list" className="block px-4 text-white font-bold hover:bg-sky-600 hover:text-white rounded transition duration-200">
           List
         </Link>
