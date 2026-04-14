@@ -1,4 +1,4 @@
-﻿using Clinic.Core.Dtos;
+using Clinic.Core.Dtos;
 using Clinic.Core.Request;
 using Clinic.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -41,7 +41,7 @@ public static class AppointmentsEndpoint
         }
         catch (Exception ex)
         {
-            return TypedResults.Conflict(new { message = ex.Message });
+            return TypedResults.Conflict(new { message = ex.Message, code = 409 });
         }
     }
 

@@ -37,8 +37,13 @@ export function useNewAppointmentsMutation() {
   return useMutation({
     mutationFn: async (Appointments: Master.AppointmentForm) =>
       await ApiService.post("Appointments", Appointments),
-    onSuccess: (result) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onSuccess: (result: any) => {
       if (!result) {
+        return;
+      }
+      if (result.code === 409) {
+        alert("Already booked at this time.");
         return;
       }
       const existing =
@@ -48,6 +53,10 @@ export function useNewAppointmentsMutation() {
       }
       queryClient.setQueryData(QUERY_KEY, [...existing, result]);
     },
+    onError:(e) => {
+      // 
+      console.log(e);
+    }
   });
 }
 
