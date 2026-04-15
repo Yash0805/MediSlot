@@ -2,7 +2,8 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import List from "./Pages/List";
 import Create from "./Pages/Create";
 import Report from "./Pages/Report";
-import Calendar from "./Pages/Calendar/Calendar"
+import Calendar from "./Pages/Calendar/Calendar";
+
 
 export default function Appointment() {
     return (

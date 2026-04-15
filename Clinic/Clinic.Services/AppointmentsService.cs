@@ -17,7 +17,7 @@ public sealed class AppointmentsService
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public IEnumerable<AppointmentsDto> GetAppointmentsList(DateTime? date = null)
+    public IEnumerable<AppointmentsDto> GetAppointmentsList(DateTime? date = null, int? timeSlotId = null)
     {
         IQueryable<Appointments> query = _dbContext.Appointments
             .Include(t => t.TimeSlot)
@@ -28,6 +28,13 @@ public sealed class AppointmentsService
             DateOnly dateOnly = DateOnly.FromDateTime(date.Value);
             query = query.Where(a => a.AppointmentDate == dateOnly);
         }
+
+        if (timeSlotId.HasValue)
+        {
+            query = query.Where(a => a.TimeSlotId == timeSlotId.Value);
+        }
+
+        query = query.OrderBy(a => a.AppointmentDate).ThenBy(a => a.TimeSlotId);
 
         return query
             .Select(a => new AppointmentsDto
@@ -140,7 +147,7 @@ public sealed class AppointmentsService
 
             List<Appointments> appointments = _dbContext.Appointments
                 .Include(t => t.TimeSlot)
-                .Where(a => a.AppointmentDate == today)
+                .Where(a => a.AppointmentDate == today && a.Status == "Booked")
                 .ToList();
 
             if (!appointments.Any())

@@ -83,7 +83,7 @@ export function useMarkNoShowAppointments() {
       await ApiService.patch<Master.Appointment[]>("Appointments/mark-noshow", {}),
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEY }); 
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });   
     },
   });
 }
