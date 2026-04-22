@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAppointmentQuery, useMarkNoShowAppointments, useAppointmentsMutation } from "../Feature/Appointments/queries";
+import {useAppointmentQuery,useMarkNoShowAppointments,useAppointmentsMutation} from "../Feature/Appointments/queries";
 import { useNavigate } from "react-router-dom";
 import { Loader } from "../Shared/Component/Loader/Loader";
 import Button from "../Shared/Component/Button/Button";
@@ -8,14 +8,23 @@ import { Checkbox, type CheckboxChangeEvent } from "primereact/checkbox";
 
 export default function Main() {
     const navigate = useNavigate();
-    const { data, isLoading } = useAppointmentQuery();
-    const { mutate: markNoShow } = useMarkNoShowAppointments();
+    const { data, isLoading, refetch } = useAppointmentQuery();
+    const { mutate: markNoShow, isPending: isMarkingNoShow } = useMarkNoShowAppointments();
     const { mutate: markAppeared } = useAppointmentsMutation();
     const [selected, setSelected] = useState<number[]>([]);
     const [loadingId, setLoadingId] = useState<number | null>(null);
-
-    useEffect(() => { markNoShow(); }, [markNoShow]);
-
+    
+    useEffect(() => {
+        if (!data || data.length === 0) return;
+        const hasBooked = data.some(a => a.status === "Booked");
+        if (hasBooked && !isMarkingNoShow) {
+            markNoShow(undefined, {
+                onSuccess: () => {
+                    refetch();
+                }
+            });
+        }
+    }, [data, isMarkingNoShow, markNoShow, refetch]);
     if (isLoading) {
         return (
             <div className="flex justify-center items-center py-10">
@@ -36,6 +45,7 @@ export default function Main() {
                     onClick={() => navigate("/Appointments/create")}
                 />
             </div>
+
             {!data || data.length === 0 ? (
                 <div className="text-center py-10">
                     No Appointment Found
@@ -52,6 +62,7 @@ export default function Main() {
                         { field: "description", header: "Description" },
                         { field: "appointmentDate", header: "Appointment Date" },
                         { field: "timeSlot", header: "Time Slot" },
+
                         {
                             field: "status",
                             header: "Status",
@@ -69,12 +80,14 @@ export default function Main() {
                                 </span>
                             ),
                         },
+
                         {
                             header: "Select",
                             render: (_: unknown, row: Master.Appointment) => (
                                 <Checkbox
                                     onChange={(e: CheckboxChangeEvent) => {
                                         if (row.status !== "NoShow") return;
+
                                         if (e.checked) {
                                             setSelected(prev =>
                                                 prev.includes(row.id)
@@ -113,6 +126,7 @@ export default function Main() {
                                                 setSelected(prev =>
                                                     prev.filter(id => id !== row.id)
                                                 );
+                                                refetch();
                                             },
                                             onError: () => {
                                                 setLoadingId(null);
