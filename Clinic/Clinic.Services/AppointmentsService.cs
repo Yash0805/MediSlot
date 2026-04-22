@@ -52,8 +52,6 @@ public sealed class AppointmentsService
             .ToList();
     }
 
-
-
     public ReportDto GetReport(DateTime? date = null, DateTime? fromDate = null, DateTime? toDate = null)
     {
         IQueryable<Appointments> query = _dbContext.Appointments
@@ -146,37 +144,33 @@ public sealed class AppointmentsService
         try
         {
             DateOnly today = DateOnly.FromDateTime(DateTime.Today);
+            List<Appointments> appointments = _dbContext.Appointments
+                          .Include(t => t.TimeSlot)
+                          .Where(a => a.AppointmentDate == today && a.Status == "Booked")
+                          .ToList();
 
-            bool hasBookedAppointments = _dbContext.Appointments
-                .Any(a => a.AppointmentDate == today && a.Status == "Booked");
-
-            if (!hasBookedAppointments)
+            if (!appointments.Any())
             {
                 return null;
             }
 
-            List<Appointments> appointments = _dbContext.Appointments
-                .Include(t => t.TimeSlot)
-                .Where(a => a.AppointmentDate == today && a.Status == "Booked")
-                .ToList();
-
-            foreach (var appointment in appointments)
+            foreach (Appointments appointment in appointments)
             {
                 appointment.Status = "NoShow";
             }
 
             _dbContext.SaveChanges();
 
-            return appointments.Select(a => new AppointmentsDto(
-                a.Id,
-                a.Name,
-                a.Phone,
-                a.Age,
-                a.Description,
-                a.AppointmentDate,
-                a.TimeSlotId,
-                a.TimeSlot.TimeSlot,
-                a.Status
+            return appointments.Select(appointment => new AppointmentsDto(
+                appointment.Id,
+                appointment.Name,
+                appointment.Phone,
+                appointment.Age,
+                appointment.Description,
+                appointment.AppointmentDate,
+                appointment.TimeSlotId,
+                appointment.TimeSlot.TimeSlot,
+                appointment.Status
             )).ToList();
         }
         catch (Exception ex)

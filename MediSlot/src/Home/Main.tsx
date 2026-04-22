@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import {useAppointmentQuery,useMarkNoShowAppointments,useAppointmentsMutation} from "../Feature/Appointments/queries";
+import { useAppointmentQuery, useMarkNoShowAppointments, useAppointmentsMutation } from "../Feature/Appointments/queries";
 import { useNavigate } from "react-router-dom";
 import { Loader } from "../Shared/Component/Loader/Loader";
 import Button from "../Shared/Component/Button/Button";
@@ -8,23 +8,13 @@ import { Checkbox, type CheckboxChangeEvent } from "primereact/checkbox";
 
 export default function Main() {
     const navigate = useNavigate();
-    const { data, isLoading, refetch } = useAppointmentQuery();
-    const { mutate: markNoShow, isPending: isMarkingNoShow } = useMarkNoShowAppointments();
+   const { data, isLoading } = useAppointmentQuery();
+    const { mutate: markNoShow } = useMarkNoShowAppointments();
     const { mutate: markAppeared } = useAppointmentsMutation();
     const [selected, setSelected] = useState<number[]>([]);
     const [loadingId, setLoadingId] = useState<number | null>(null);
-    
-    useEffect(() => {
-        if (!data || data.length === 0) return;
-        const hasBooked = data.some(a => a.status === "Booked");
-        if (hasBooked && !isMarkingNoShow) {
-            markNoShow(undefined, {
-                onSuccess: () => {
-                    refetch();
-                }
-            });
-        }
-    }, [data, isMarkingNoShow, markNoShow, refetch]);
+    useEffect(() => { markNoShow(); }, [markNoShow]);
+
     if (isLoading) {
         return (
             <div className="flex justify-center items-center py-10">
@@ -126,7 +116,6 @@ export default function Main() {
                                                 setSelected(prev =>
                                                     prev.filter(id => id !== row.id)
                                                 );
-                                                refetch();
                                             },
                                             onError: () => {
                                                 setLoadingId(null);
