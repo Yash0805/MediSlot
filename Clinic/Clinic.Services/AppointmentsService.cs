@@ -20,8 +20,7 @@ public sealed class AppointmentsService
     public IEnumerable<AppointmentsDto> GetAppointmentsList(DateTime? date = null, int? timeSlotId = null)
     {
         IQueryable<Appointments> query = _dbContext.Appointments
-            .Include(t => t.TimeSlot)
-            .AsQueryable();
+            .Include(t => t.TimeSlot);
 
         if (date.HasValue)
         {
@@ -55,8 +54,7 @@ public sealed class AppointmentsService
     public ReportDto GetReport(DateTime? date = null, DateTime? fromDate = null, DateTime? toDate = null)
     {
         IQueryable<Appointments> query = _dbContext.Appointments
-            .Include(t => t.TimeSlot)
-            .AsQueryable();
+            .Include(t => t.TimeSlot);
 
         if (date.HasValue)
         {

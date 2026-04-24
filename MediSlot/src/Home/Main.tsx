@@ -8,7 +8,7 @@ import { Checkbox, type CheckboxChangeEvent } from "primereact/checkbox";
 
 export default function Main() {
     const navigate = useNavigate();
-   const { data, isLoading } = useAppointmentQuery();
+    const { data, isLoading } = useAppointmentQuery();
     const { mutate: markNoShow } = useMarkNoShowAppointments();
     const { mutate: markAppeared } = useAppointmentsMutation();
     const [selected, setSelected] = useState<number[]>([]);

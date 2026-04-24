@@ -13,6 +13,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("MyDbContext"));
 });
+
 builder.Services
     .AddScoped<AppointmentsService>()
     .AddScoped<TimeSlotsService>();
